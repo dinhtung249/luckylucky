@@ -1,104 +1,80 @@
 import 'package:flutter/material.dart';
-import 'package:luckylucky/screens/power_screen.dart';
-import '../widgets/community_chat_board.dart';
-import '../widgets/lucky_drawer.dart';
-import '../widgets/top_winners_board.dart';
-import 'login_screen.dart';
-import 'lotto_screen.dart';
-import 'mega_screen.dart';
+import '../widgets/chat_box.dart';
+import '../widgets/chat_input.dart';
+import '../widgets/custom_app_bar.dart';
+import '../widgets/drawer_menu.dart';
+import '../widgets/footer_section.dart';
+import '../widgets/top_players.dart';
 
-class HomeScreen extends StatefulWidget {
+
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
-
-  final List<Widget> _screens = [
-    const HomeContent(),
-    const PowerScreen(),
-    const MegaScreen(),
-    const LottoScreen(),
-    const LoginScreen(),
-  ];
-
-  final List<String> _titles = [
-    'Trang chủ',
-    '6/55',
-    '6/45',
-    '6/35',
-    'Đăng nhập',
-  ];
-
-  @override
   Widget build(BuildContext context) {
+    bool isMobile = MediaQuery.of(context).size.width < 600;
+
     return Scaffold(
-      appBar: AppBar(
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: CustomAppBar(),
+      ),
+      drawer: isMobile ? const DrawerMenu() : null,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // 🔶 Banner chính
+            Container(
+              padding: const EdgeInsets.all(16),
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.blue, Colors.indigo],
+                ),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'Chào mừng đến với LuckyLucky!',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      // TODO: Hiển thị trang "Đang xây dựng"
+                    },
+                    child: const Text('Tham gia ngay'),
+                  ),
+                ],
+              ),
+            ),
+
+            // 🎯 Top Cao Thủ
+            const SizedBox(height: 24),
+            const TopPlayers(),
+
+            // 💬 Khung chát
+            const SizedBox(height: 24),
+            SizedBox(
+              height: 400,
+              child: Column(
+                children: const [
+                  Expanded(child: ChatBox()),
+                  ChatInput(),
+                ],
+              ),
+            ),
+
+            // 📄 Footer
+            const SizedBox(height: 24),
+            const FooterSection(),
+          ],
         ),
-        title: Text(_titles[_currentIndex]),
-        centerTitle: true,
-        backgroundColor: Colors.grey[200],
-      ),
-      drawer: const LuckyDrawer(),
-      body: _screens[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Trang chủ',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.flash_on),
-            label: '6/55',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star_border),
-            label: '6/45',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.casino),
-            label: '6/35',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.login),
-            label: 'Đăng nhập',
-          ),
-        ],
-        selectedItemColor: Colors.indigo,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.grey[100],
-      ),
-      backgroundColor: const Color(0xFFF4F1FB),
-    );
-  }
-}
-
-// ✨ Chỉ còn phần nội dung chính (không có Scaffold nữa)
-class HomeContent extends StatelessWidget {
-  const HomeContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: const [
-          TopWinnersBoard(),
-          SizedBox(height: 8),
-          CommunityChatBoard(),
-        ],
       ),
     );
   }
 }
-

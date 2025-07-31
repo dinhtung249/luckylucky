@@ -5,11 +5,12 @@ class MegaScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
+    return Scaffold(
+      appBar: AppBar(title: const Text('Mega 6/45')),
+      body: const Center(
         child: Text(
-          '🚧 Mega 6/45 - Đang phát triển',
-          style: TextStyle(fontSize: 18),
+          'Mega 6/45 đang xây dựng...',
+          style: TextStyle(fontSize: 20),
         ),
       ),
     );

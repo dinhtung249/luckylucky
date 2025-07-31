@@ -1,94 +1,154 @@
 import 'package:flutter/material.dart';
-import 'package:flutterfire_ui/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:luckylucky/screens/profile_setup_screen.dart';
+import 'package:luckylucky/widgets/custom_input_field.dart';
+import 'home_screen.dart';
+import 'email_verification_screen.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  final String? emailPrefill;
-  final Key? forceRefreshKey;
-  const LoginScreen({super.key, this.emailPrefill, this.forceRefreshKey});
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  void _handleNotVerified(BuildContext context, User user) async {
-    await user.sendEmailVerification();
-    await FirebaseAuth.instance.signOut();
+  final _auth = FirebaseAuth.instance;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isLoading = false;
+  bool _obscurePassword = true; //toggle pw
 
-    if (context.mounted) {
-      // Hiện thông báo dạng banner phía trên cùng
-      ScaffoldMessenger.of(context).showMaterialBanner(
-        MaterialBanner(
-          content: const Text(
-              "📧 Vui lòng kiểm tra email (bao gồm cả hộp thư Rác/Spam) và nhấn vào liên kết để kích hoạt tài khoản."),
-          actions: [
-            TextButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-              },
-              child: const Text("Đóng"),
-            ),
-          ],
-          backgroundColor: Colors.amber.shade100,
-        ),
+  void _login() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
 
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => LoginScreen(
-            emailPrefill: user.email,
+      final user = _auth.currentUser;
+      if (user != null && user.emailVerified) {
+        final isFirstTime = user.metadata.creationTime == user.metadata.lastSignInTime;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => isFirstTime ? ProfileSetupScreen() : const HomeScreen(),
           ),
-        ),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => EmailVerificationScreen()),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi: ${e.toString()}')),
       );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: SignInScreen(
-            key: widget.forceRefreshKey ?? UniqueKey(),
-            providerConfigs: const [
-              EmailProviderConfiguration(),
-            ],
-            email: widget.emailPrefill,
-            actions: [
-              AuthStateChangeAction<SignedIn>((context, state) async {
-                final user = FirebaseAuth.instance.currentUser;
-                if (user != null && !user.emailVerified) {
-                  _handleNotVerified(context, user);
-                } else {
-                  final isNewUser = user!.metadata.creationTime == user.metadata.lastSignInTime;
+    double maxWidth = MediaQuery.of(context).size.width > 600 ? 400 : double.infinity;
 
-                  if (isNewUser) {
-                    Navigator.pushReplacementNamed(context, '/profile-setup');
-                  } else {
-                    Navigator.of(context).pop(); // hoặc chuyển về Home nếu cần
-                  }
-                }
-              }),
+    return Scaffold(
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          margin: MediaQuery.of(context).size.width > 600
+              ? const EdgeInsets.only(top: 80)
+              : const EdgeInsets.only(top: 40),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 12)],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Đăng Nhập', style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+              ),
+              const SizedBox(height: 12),
 
-            ],
-            footerBuilder: (context, _) => Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
+              TextField(
+                controller: _passwordController,
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  labelText: 'Mật khẩu',
+                  prefixIcon: Icon(Icons.lock),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                ),
+              ),
+
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : ElevatedButton.icon(
+                  icon: const Icon(Icons.login),
+                  label: const Text('Đăng Nhập'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.indigo,
+                    foregroundColor: Colors.white, // Đặt màu chữ thành trắng
+                    shadowColor: Colors.black, // Đặt màu bóng thành đen
+                    elevation: 8, // Tăng độ nổi của nút (độ cao)
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10), // Bo tròn các góc
+                    ),
+                  ),
+                  onPressed: _login,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("🔥 Tạo tài khoản để gửi chat và tham gia cộng đồng"),
+                  const Text('Chưa có tài khoản?'),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/register');
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (_) => RegisterScreen(),
+                      ));
                     },
-                    child: const Text("Tạo tài khoản mới"),
+                    child: const Text('Đăng ký ngay'),
                   ),
                 ],
               ),
-            ),
+              TextButton(
+                onPressed: () {
+                  // TODO: Mở màn hình quên mật khẩu
+                },
+                child: const Text('Quên mật khẩu?'),
+              )
+            ],
           ),
         ),
-      ],
+      ),
+      backgroundColor: Colors.indigo.shade50,
     );
   }
 }

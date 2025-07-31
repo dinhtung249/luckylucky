@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:luckylucky/screens/login_screen.dart';
-import 'package:luckylucky/screens/profile_setup_screen.dart';
+import 'package:luckylucky/screens/lotto_screen.dart';
+import 'package:luckylucky/screens/mega_screen.dart';
+import 'package:luckylucky/screens/power_screen.dart';
 
 import 'firebase_options.dart';
 import 'screens/home_screen.dart';
@@ -28,9 +30,11 @@ class LuckyApp extends StatelessWidget {
       ),
       home: const HomeScreen(),
       routes: {
-        '/profile-setup': (context) => const ProfileSetupScreen(),
-        '/login': (context) => const LoginScreen(),
-        // Bạn có thể thêm nhiều route khác tại đây
+        '/home': (context) => const HomeScreen(),
+        '/power': (context) => const PowerScreen(),
+        '/mega': (context) => const MegaScreen(),
+        '/lotto': (context) => const LottoScreen(),
+        '/login': (context) => LoginScreen(), // sẽ xử lý sau
       },
     );
   }

@@ -5,11 +5,12 @@ class PowerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
+    return Scaffold(
+      appBar: AppBar(title: const Text('Power 6/55')),
+      body: const Center(
         child: Text(
-          '🚧 Power 6/55 - Đang phát triển',
-          style: TextStyle(fontSize: 18),
+          'Power 6/55 đang xây dựng...',
+          style: TextStyle(fontSize: 20),
         ),
       ),
     );

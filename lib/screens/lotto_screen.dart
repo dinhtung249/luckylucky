@@ -5,11 +5,12 @@ class LottoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
+    return Scaffold(
+      appBar: AppBar(title: const Text('Lotto 6/35')),
+      body: const Center(
         child: Text(
-          '🚧 Mega 6/35 - Đang phát triển',
-          style: TextStyle(fontSize: 18),
+          'Lotto 6/35 đang xây dựng...',
+          style: TextStyle(fontSize: 20),
         ),
       ),
     );
