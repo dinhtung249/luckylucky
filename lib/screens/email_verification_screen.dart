@@ -2,22 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
+  const EmailVerificationScreen({super.key});
+
   @override
-  _EmailVerificationScreenState createState() => _EmailVerificationScreenState();
+  EmailVerificationScreenState createState() => EmailVerificationScreenState();
 }
 
-class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
+class EmailVerificationScreenState extends State<EmailVerificationScreen> {
   final _auth = FirebaseAuth.instance;
   bool _isVerified = false;
   bool _isSending = false;
 
   Future<void> _checkVerification() async {
     User? user = _auth.currentUser;
-    await user?.reload();  // reload để cập nhật trạng thái xác thực
+    await FirebaseAuth.instance.currentUser?.reload();
+    // reload để cập nhật trạng thái xác thực
     setState(() {
       _isVerified = user?.emailVerified ?? false;
     });
 
+    // Thêm dòng kiểm tra 'mounted' ngay trước khi sử dụng context
+    if (!mounted) {
+      return;
+    }
     if (_isVerified) {
       Navigator.pushReplacementNamed(context, '/login'); // Hoặc tới Home/Profile tùy theo flow
     } else {
@@ -32,15 +39,25 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
     try {
       await _auth.currentUser?.sendEmailVerification();
+
+      // Thêm dòng kiểm tra 'mounted' ngay sau khi await
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Email xác minh đã được gửi lại!')),
+        const SnackBar(content: Text('Email xác minh đã được gửi lại!')),
       );
     } catch (e) {
+      // Thêm dòng kiểm tra 'mounted' trong khối catch
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gửi email thất bại: ${e.toString()}')),
       );
     } finally {
-      setState(() => _isSending = false);
+      // Chỉ gọi setState nếu widget còn được gắn vào cây
+      if (mounted) {
+        setState(() => _isSending = false);
+      }
     }
   }
 

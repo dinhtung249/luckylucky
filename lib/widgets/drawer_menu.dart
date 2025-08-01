@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class DrawerMenu extends StatelessWidget {
@@ -5,6 +6,8 @@ class DrawerMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -21,11 +24,15 @@ class DrawerMenu extends StatelessWidget {
               ),
             ),
           ),
-          _buildDrawerItem(context, Icons.home, 'Trang Chủ', '/home'),
+          _buildDrawerItem(context, Icons.home, 'Trang Chủ', '/'),
           _buildDrawerItem(context, Icons.star, 'Power 6/55', '/power'),
           _buildDrawerItem(context, Icons.flash_on, 'Mega 6/45', '/mega'),
           _buildDrawerItem(context, Icons.casino, 'Lotto 6/35', '/lotto'),
-          _buildDrawerItem(context, Icons.login, 'Đăng Nhập', '/login'),
+          // _buildDrawerItem(context, Icons.login, 'Đăng Nhập', '/login'),
+          if (user == null)
+            _buildDrawerItem(context, Icons.login, 'Đăng Nhập', '/login')
+          else
+            _buildDrawerItem(context, Icons.person, 'Hồ Sơ', '/profile'),
         ],
       ),
     );

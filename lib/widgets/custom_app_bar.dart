@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class CustomAppBar extends StatelessWidget {
@@ -12,12 +13,20 @@ class CustomAppBar extends StatelessWidget {
       backgroundColor: Colors.blue.shade700,
       actions: isMobile
           ? null
-          : [
-        _NavItem(title: 'Trang Chủ', route: '/home'),
+          : FirebaseAuth.instance.currentUser == null
+          ? [
+        _NavItem(title: 'Trang Chủ', route: '/'),
         _NavItem(title: 'Power 6/55', route: '/power'),
         _NavItem(title: 'Mega 6/45', route: '/mega'),
         _NavItem(title: 'Lotto 6/35', route: '/lotto'),
         _NavItem(title: 'Đăng Nhập', route: '/login'),
+      ]
+          : [
+        _NavItem(title: 'Trang Chủ', route: '/'),
+        _NavItem(title: 'Power 6/55', route: '/power'),
+        _NavItem(title: 'Mega 6/45', route: '/mega'),
+        _NavItem(title: 'Lotto 6/35', route: '/lotto'),
+        _NavItem(title: 'Hồ Sơ', route: '/profile'),
       ],
     );
   }
@@ -30,9 +39,20 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Lấy tên route hiện tại từ stack điều hướng
+    final currentRoute = ModalRoute.of(context)?.settings.name;
+
     return TextButton(
       onPressed: () {
-        Navigator.pushNamed(context, route);
+        // Kiểm tra nếu route hiện tại giống với route của item
+        if (currentRoute == route) {
+          // Sử dụng pushReplacementNamed để thay thế route hiện tại,
+          // tránh việc stack bị chồng lên và xuất hiện nút back không cần thiết.
+          Navigator.pushReplacementNamed(context, route);
+        } else {
+          // Sử dụng pushNamed để chuyển hướng đến trang mới
+          Navigator.pushNamed(context, route);
+        }
       },
       child: Text(
         title,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:luckylucky/screens/profile_setup_screen.dart';
-import 'package:luckylucky/widgets/custom_input_field.dart';
 import 'home_screen.dart';
 import 'email_verification_screen.dart';
 import 'register_screen.dart';

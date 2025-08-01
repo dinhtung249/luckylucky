@@ -4,6 +4,7 @@ import 'package:luckylucky/screens/login_screen.dart';
 import 'package:luckylucky/screens/lotto_screen.dart';
 import 'package:luckylucky/screens/mega_screen.dart';
 import 'package:luckylucky/screens/power_screen.dart';
+import 'package:luckylucky/screens/profile_screen.dart';
 
 import 'firebase_options.dart';
 import 'screens/home_screen.dart';
@@ -29,12 +30,14 @@ class LuckyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
       ),
       home: const HomeScreen(),
+      // initialRoute: '/',
       routes: {
-        '/home': (context) => const HomeScreen(),
+        // '/': (context) => const HomeScreen(),
         '/power': (context) => const PowerScreen(),
         '/mega': (context) => const MegaScreen(),
         '/lotto': (context) => const LottoScreen(),
-        '/login': (context) => LoginScreen(), // sẽ xử lý sau
+        '/login': (context) => LoginScreen(),
+        '/profile': (context) => const ProfileScreen(),
       },
     );
   }
